@@ -124,17 +124,18 @@ def extract_storage_values(row):
 def calc_percent_storage(row_dict):
     """Calculate relative volume of dams and return in a new dict object.
 
-    Expects date and absolute volume by day for dams. Adds calculated
-    value for relative volume of the dam, using the absolute volume and
-    the known full capacity from the config file.
+    Expects date and absolute volume by day for dams and adds a calculated
+    percent full value for each dam.
 
     @param row_dict: Dict with keys as set in the output dict of the
         extract_storage_values function.
 
     @return out_dict: A new dict object. Includes the input dict's date
-        and two values for each dam, to cover the provided storage value
-        and the calculated relative volume (percentage value from 0.0 to 1.0,
-        or None if storage is None).
+        and two values for each dam as explained below.
+
+        {DAM NAME} Storage (Ml): Float value in Ml, as given input.
+        {DAME NAME} Fullness (%): Float from 0.0 to 1.0 as storage value
+            divided by the dam's full capacity. Or None if storage is None.
     """
     out_dict = {'Date': row_dict.pop('Date')}
     for k, v in row_dict.items():
@@ -145,3 +146,31 @@ def calc_percent_storage(row_dict):
         out_dict[percent_key] = v / CAPACITY[k] if v is not None else None
 
     return out_dict
+
+
+def parse_csv():
+    """Read in dam level CSV file and returns cleaned and processed rows.
+
+    Read in and processes values for each row then calculates the relative
+    volumes by day for each dam or aggregated dam group. Skips the first
+    five rows of header data and also ignores the values after today (which are
+    included in the source CSV as null values).
+
+    @return expanded_data: List of dictionaries, where each dict object
+        is in the format as set in `calc_percent_storage`.
+    """
+    with open(FILE_PATH, encoding=ENCODING) as f:
+        for i in range(5):
+            next(f, None)
+
+        reader = csv.reader(f)
+
+        # Use a generator so that a row is only read when needed.
+        cleaned_data = (extract_storage_values(row_tuple) for row_tuple
+                        in reader)
+
+        today = datetime.date.today()
+        expanded_data = [calc_percent_storage(row_dict) for row_dict
+                         in cleaned_data if row_dict['Date'] <= today]
+
+    return expanded_data
