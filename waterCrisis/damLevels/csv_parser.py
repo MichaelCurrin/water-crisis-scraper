@@ -133,12 +133,13 @@ def calc_percent_storage(row_dict):
 
     @return out_dict: A new dict object. Includes the input dict's date
         and two values for each dam, to cover the provided storage value
-        and the calculated relative volume (or None if storage is None).
+        and the calculated relative volume (percentage value from 0.0 to 1.0,
+        or None if storage is None).
     """
     out_dict = {'Date': row_dict.pop('Date')}
     for k, v in row_dict.items():
-        storage_key = "{} Storage".format(k)
-        percent_key = "{} Percent".format(k)
+        storage_key = "{} Storage (Ml)".format(k)
+        percent_key = "{} Fullness (%)".format(k)
 
         out_dict[storage_key] = v
         out_dict[percent_key] = v / CAPACITY[k] if v is not None else None
