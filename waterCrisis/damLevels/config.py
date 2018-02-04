@@ -43,24 +43,37 @@ def _get_capacity():
 
 
 def _get_csv_details():
-    varDir = os.path.join(os.path.dirname(__file__), 'var')
+    """Return tuple of configured CSV input and output details.
 
+    Also verifies that the process has access to read the input file
+    and write to the output file.
+
+    The CSV input file is expected to be a download of the file
+    "Dam levels update 2012-2018.csv" on this webpage:
+        https://web1.capetown.gov.za/web1/opendataportal/DatasetDetail?DatasetName=Dam+levels
+    The file is not directly downloadable with cURL, as it requires a
+    headless browser to execute the JavaScript.
+
+    @return: Tuple of configured CSV input and output strings.
+    """
     # Encoding cannot be None or 'utf-8', since then there is an error on
     # decoding byte `0xcb`. This is around VOËLVLEI cell.
     # >>> chr(0xcb)
     # 'Ë'
-    CSV_IN_ENCODING = 'latin-1'
-    CSV_IN_PATH = os.path.join(varDir, 'Dam levels update 2012-2018.csv')
-    CSV_OUT_PATH = os.path.join(varDir, 'dam_levels_cleaned.csv')
+    csv_in_encoding = 'latin-1'
 
-    assert os.access(CSV_IN_PATH, os.R_OK), \
-        "Unable to read CSV path: {}".format(CSV_IN_PATH)
+    varDir = os.path.join(os.path.dirname(__file__), 'var')
+    csv_in_path = os.path.join(varDir, 'Dam levels update 2012-2018.csv')
+    csv_out_path = os.path.join(varDir, 'dam_levels_cleaned.csv')
 
-    CSV_OUT_DIR = os.path.dirname(CSV_OUT_PATH)
-    assert os.access(CSV_OUT_DIR, os.W_OK), \
-        "Unable to write to CSV out dir: {}".format(CSV_OUT_DIR)
+    assert os.access(csv_in_path, os.R_OK), \
+        "Unable to read CSV path: {}".format(csv_in_path)
 
-    return CSV_IN_ENCODING, CSV_IN_PATH, CSV_OUT_PATH
+    csv_out_dir = os.path.dirname(csv_out_path)
+    assert os.access(csv_out_dir, os.W_OK), \
+        "Unable to write to CSV out dir: {}".format(csv_out_dir)
+
+    return csv_in_encoding, csv_in_path, csv_out_path
 
 
 CAPACITY = _get_capacity()
