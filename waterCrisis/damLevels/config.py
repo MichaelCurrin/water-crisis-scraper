@@ -1,4 +1,5 @@
 """Configuration file for dam CSV parser."""
+import os
 
 
 def getCapacity():
@@ -43,11 +44,12 @@ def getCapacity():
 
 CAPACITY = getCapacity()
 
+varDir = os.path.join(os.path.dirname(__file__), 'var')
+
 # Encoding cannot be None or 'utf-8', since then there is an error on decoding
 # byte `0xcb`. This is around VOËLVLEI cell.
 # >>> chr(0xcb)
 # 'Ë'
-ENCODING = 'latin-1'
-FILE_PATH = 'Dam levels update 2012-2018.csv'
-
-OUT_PATH = 'dam_levels_cleaned.csv'
+CSV_IN_ENCODING = 'latin-1'
+CSV_IN_PATH = os.path.join(varDir, 'Dam levels update 2012-2018.csv')
+CSV_OUT_PATH = os.path.join(varDir, 'dam_levels_cleaned.csv')
