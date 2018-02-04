@@ -73,16 +73,16 @@ def extract_storage_values(row):
         land_en_zeezicht_storage = 0
 
     try:
-        big_six_storage = sum(
+        big_six_storage = sum((
             theewaterskloof_storage, wemmershoek_storage,
             steensbras_lower_storage, steensbras_upper_storage,
             voelvlei_storage, berg_river_storage
-        )
+        ))
     except TypeError:
         big_six_storage = None
 
     try:
-        small_storage = sum(
+        small_storage = sum((
             hely_hutchison_storage,
             woodhead_storage,
             victoria_storage,
@@ -91,7 +91,7 @@ def extract_storage_values(row):
             kleinplaats_storage,
             lewis_gay_storage,
             land_en_zeezicht_storage
-        )
+        ))
     except TypeError:
         small_storage = None
 
@@ -208,7 +208,7 @@ def write_csv():
 
         writer.writeheader()
         writer.writerows(processed_input_data)
-    print("Done.")
+    print("Done")
 
 
 if __name__ == '__main__':
