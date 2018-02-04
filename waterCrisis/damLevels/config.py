@@ -2,7 +2,7 @@
 import os
 
 
-def getCapacity():
+def _get_capacity():
     """Return constant values for dam level capacities.
 
     Storage capacity values are measured in million cubic metres
@@ -42,14 +42,26 @@ def getCapacity():
     return capacity
 
 
-CAPACITY = getCapacity()
+def _get_csv_details():
+    varDir = os.path.join(os.path.dirname(__file__), 'var')
 
-varDir = os.path.join(os.path.dirname(__file__), 'var')
+    # Encoding cannot be None or 'utf-8', since then there is an error on
+    # decoding byte `0xcb`. This is around VOËLVLEI cell.
+    # >>> chr(0xcb)
+    # 'Ë'
+    CSV_IN_ENCODING = 'latin-1'
+    CSV_IN_PATH = os.path.join(varDir, 'Dam levels update 2012-2018.csv')
+    CSV_OUT_PATH = os.path.join(varDir, 'dam_levels_cleaned.csv')
 
-# Encoding cannot be None or 'utf-8', since then there is an error on decoding
-# byte `0xcb`. This is around VOËLVLEI cell.
-# >>> chr(0xcb)
-# 'Ë'
-CSV_IN_ENCODING = 'latin-1'
-CSV_IN_PATH = os.path.join(varDir, 'Dam levels update 2012-2018.csv')
-CSV_OUT_PATH = os.path.join(varDir, 'dam_levels_cleaned.csv')
+    assert os.access(CSV_IN_PATH, os.R_OK), \
+        "Unable to read CSV path: {}".format(CSV_IN_PATH)
+
+    CSV_OUT_DIR = os.path.dirname(CSV_OUT_PATH)
+    assert os.access(CSV_OUT_DIR, os.W_OK), \
+        "Unable to write to CSV out dir: {}".format(CSV_OUT_DIR)
+
+    return CSV_IN_ENCODING, CSV_IN_PATH, CSV_OUT_PATH
+
+
+CAPACITY = _get_capacity()
+CSV_IN_ENCODING, CSV_IN_PATH, CSV_OUT_PATH = _get_csv_details()
