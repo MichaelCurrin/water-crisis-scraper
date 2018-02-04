@@ -148,7 +148,7 @@ def calc_percent_storage(row_dict):
     return out_dict
 
 
-def parse_csv():
+def process_input_csv():
     """Read in dam level CSV file and returns cleaned and processed rows.
 
     Read in and processes values for each row then calculates the relative
@@ -159,6 +159,8 @@ def parse_csv():
     @return expanded_data: List of dictionaries, where each dict object
         is in the format as set in `calc_percent_storage`.
     """
+    print("Reading input CSV: {}".format(FILE_PATH))
+
     with open(FILE_PATH, encoding=ENCODING) as f:
         for i in range(5):
             next(f, None)
@@ -174,3 +176,40 @@ def parse_csv():
                          in cleaned_data if row_dict['Date'] <= today]
 
     return expanded_data
+
+
+def write_csv():
+    """Procedure to read CSV input and write out a new with processed data.
+
+    Prepares a header row, based on keys of the first row of input data.
+    The columns are sorted alphabetically (to make it easy to find dams),
+    then the Date and aggregate data are moved to left to give them priority.
+    """
+    processed_input_data = process_input_csv()
+
+    first_row_dict = processed_input_data[0].copy()
+    first_row_dict.pop('Date')
+    columns_names = sorted(first_row_dict.keys())
+
+    aggregate_columns = []
+    detail_columns = []
+    for k in columns_names:
+        if 'Dams' in k:
+            aggregate_columns.append(k)
+        else:
+            detail_columns.append(k)
+
+    header = ['Date'] + aggregate_columns + detail_columns
+
+    print("Writing output CSV: {}".format(OUT_PATH))
+
+    with open(OUT_PATH, 'w') as out_file:
+        writer = csv.DictWriter(out_file, fieldnames=header)
+
+        writer.writeheader()
+        writer.writerows(processed_input_data)
+    print("Done.")
+
+
+if __name__ == '__main__':
+    write_csv()
