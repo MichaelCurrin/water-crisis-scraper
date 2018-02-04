@@ -7,7 +7,7 @@ to a dictionary. This is written out to a CSV if running as the main script.
 import csv
 import datetime
 
-from config import FILE_PATH, ENCODING, OUT_PATH, CAPACITY
+import config
 
 
 def parse_to_float(value):
@@ -138,12 +138,16 @@ def calc_percent_storage(row_dict):
             divided by the dam's full capacity. Or None if storage is None.
     """
     out_dict = {'Date': row_dict.pop('Date')}
-    for k, v in row_dict.items():
-        storage_key = "{} Storage (Ml)".format(k)
-        percent_key = "{} Fullness (%)".format(k)
+    for dam_name, volume in row_dict.items():
+        storage_key = "{} Storage (Ml)".format(dam_name)
+        percent_key = "{} Fullness (%)".format(dam_name)
 
-        out_dict[storage_key] = v
-        out_dict[percent_key] = v / CAPACITY[k] if v is not None else None
+        out_dict[storage_key] = volume
+        maxCapacity = config.CAPACITY[dam_name]
+        if volume is None:
+            out_dict[percent_key] = None
+        else:
+            out_dict[percent_key] = volume / maxCapacity
 
     return out_dict
 
@@ -159,9 +163,9 @@ def process_input_csv():
     @return expanded_data: List of dictionaries, where each dict object
         is in the format as set in `calc_percent_storage`.
     """
-    print("Reading input CSV: {}".format(FILE_PATH))
+    print("Reading input CSV: {}".format(config.CSV_IN_PATH))
 
-    with open(FILE_PATH, encoding=ENCODING) as f:
+    with open(config.CSV_IN_PATH, encoding=config.CSV_IN_ENCODING) as f:
         for i in range(5):
             next(f, None)
 
@@ -201,9 +205,9 @@ def write_csv():
 
     header = ['Date'] + aggregate_columns + detail_columns
 
-    print("Writing output CSV: {}".format(OUT_PATH))
+    print("Writing output CSV: {}".format(config.CSV_OUT_PATH))
 
-    with open(OUT_PATH, 'w') as out_file:
+    with open(config.CSV_OUT_PATH, 'w') as out_file:
         writer = csv.DictWriter(out_file, fieldnames=header)
 
         writer.writeheader()
