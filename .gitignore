@@ -1,8 +1,14 @@
-# Virtual environment as a directory.
-virtualenv/
-# Virtual environment as a symlink.
-virtualenv
-
-# Byte-compiled / optimized / DLL files
+# Byte-compiled / optimized files.
 __pycache__/
 *.py[cod]
+
+# Virtual environment as a directory or symlink.
+virtualenv/
+virtualenv
+
+# Spyder project file.
+.spyproject
+
+# CSV files.
+waterCrisis/*/var/*.csv
+waterCrisis/*/var/.lock*.csv#
