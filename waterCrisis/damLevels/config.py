@@ -1,4 +1,4 @@
-"""Configuration file for dam CSV parser."""
+"""Configuration file for the dam_levels module."""
 import os
 
 
