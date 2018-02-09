@@ -157,8 +157,8 @@ def process_input_csv():
 
     Read in and processes values for each row then calculates the relative
     volumes by day for each dam or aggregated dam group. Skips the first
-    five rows of header data and also ignores the values after today (which are
-    included in the source CSV as null values).
+    five rows of header data. Also ignores the row values beyond today's
+    date, since they are just empty values against a date.
 
     @return expanded_data: List of dictionaries, where each dict object
         is in the format as set in `calc_percent_storage`.
@@ -183,11 +183,12 @@ def process_input_csv():
 
 
 def write_csv():
-    """Procedure to read CSV input and write out a new with processed data.
+    """Procedure to read CSV input, process the data, then write a new CSV.
 
-    Prepares a header row, based on keys of the first row of input data.
-    The columns are sorted alphabetically (to make it easy to find dams),
-    then the Date and aggregate data are moved to left to give them priority.
+    Prepare a header row, based on keys of the first row of input data.
+    Sort columns alphabetically, to make it easy to find dams in the output.
+    Then move the 'Date' to the far left as the index, followed by the columns
+    of aggregated data which are of higher priority than the individual dams.
     """
     processed_input_data = process_input_csv()
 
