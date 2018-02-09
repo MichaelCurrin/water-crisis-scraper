@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 """Prepare Metadata application file.
 
-Scrapes attributes of configured areas and writes out their metadata to a CSV.
+Scrapes attributes of configured area and writes out their metadata to a CSV.
 
 Reads property24 HTML data for given URLs of provinces in South Africa.
-Extract the details of each suburb listed and write out a CSV. The suburbs
-and their attributes handled here are expected to be static, so the CSV does
-not need to be updated often.
+For each province page, extract the details of the province and its suburbs.
+Then writes out a CSV of data for the whole the whole country.
+
+The suburbs and their attributes handled here are expected to be static,
+so the CSV does not need to be updated often. The data can then be read
+in by another script, which can lookup HTML for the values in the uri column.
 
 The output could be JSON, but CSV makes it easy to sort and filter the data
 in a CSV viewer.
