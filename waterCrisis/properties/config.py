@@ -47,4 +47,5 @@ REQUEST_HEADERS = {
                   " (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36"
 }
 # Number of seconds to wait between requests to avoid being blocked.
-REQUEST_SPACING = 0.5
+# Set 0.0 to not wait.
+REQUEST_SPACING = 1.0
