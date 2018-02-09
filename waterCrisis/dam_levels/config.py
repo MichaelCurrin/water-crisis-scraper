@@ -42,7 +42,7 @@ def _get_capacity():
     return capacity
 
 
-def _get_csv_details():
+def _get_csv_details(csv_in_filename, csv_out_filename):
     """Return tuple of configured CSV input and output details.
 
     Also verifies that the process has access to read the input file
@@ -54,17 +54,14 @@ def _get_csv_details():
     The file is not directly downloadable with cURL, as it requires a
     headless browser to execute the JavaScript.
 
-    @return: Tuple of configured CSV input and output strings.
-    """
-    # Encoding cannot be None or 'utf-8', since then there is an error on
-    # decoding byte `0xcb`. This is around VOËLVLEI cell.
-    # >>> chr(0xcb)
-    # 'Ë'
-    csv_in_encoding = 'latin-1'
+    @param csv_in_filename: Name of input CSV file to build full path for.
+    @param csv_out_filename: Name of output CSV file to build full path for.
 
-    varDir = os.path.join(os.path.dirname(__file__), 'var')
-    csv_in_path = os.path.join(varDir, 'Dam levels update 2012-2018.csv')
-    csv_out_path = os.path.join(varDir, 'dam_levels_cleaned.csv')
+    @return: Tuple of configured CSV input and output paths.
+    """
+    var_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'var'))
+    csv_in_path = os.path.join(var_dir, csv_in_filename)
+    csv_out_path = os.path.join(var_dir, csv_out_filename)
 
     assert os.access(csv_in_path, os.R_OK), \
         "Unable to read CSV path: {}".format(csv_in_path)
@@ -73,8 +70,21 @@ def _get_csv_details():
     assert os.access(csv_out_dir, os.W_OK), \
         "Unable to write to CSV out dir: {}".format(csv_out_dir)
 
-    return csv_in_encoding, csv_in_path, csv_out_path
+    return csv_in_path, csv_out_path
 
 
 CAPACITY = _get_capacity()
-CSV_IN_ENCODING, CSV_IN_PATH, CSV_OUT_PATH = _get_csv_details()
+
+# Encoding required to avoid error on reading the input CSV. Values of None
+# or 'utf-8', will result in an error decoding byte `0xcb`. This is around the
+# VOËLVLEI label.
+# >>> chr(0xcb)
+# 'Ë'
+# Note that this is only needed for input, as the default encoding was
+# found to be safe for writing out accented characters.
+CSV_IN_ENCODING = "latin-1"
+
+CSV_IN_PATH, CSV_OUT_PATH = _get_csv_details(
+    csv_in_filename="Dam levels update 2012-2018.csv",
+    csv_out_filename="dam_levels_cleaned.csv"
+)
