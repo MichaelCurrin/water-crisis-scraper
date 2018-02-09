@@ -27,7 +27,14 @@ VAR_PATH, METADATA_CSV_PATH, HTML_OUT_DIR = _get_file_paths()
 HOST_DOMAIN = "https://www.property24.com"
 PROVINCE_PATHS = {
     'western-cape': "/property-values/western-cape/9",
-    'gauteng': "/property-values/gauteng/1"
+    'gauteng': "/property-values/gauteng/1",
+    'kwazulu-natal': "/property-values/kwazulu-natal/2",
+    'free-state': "/property-values/free-state/3",
+    'mpumalanga': "/property-values/mpumalanga/5",
+    'eastern-cape': "/property-values/eastern-cape/7",
+    'north-west': "/property-values/north-west/6",
+    'limpopo': "/property-values/limpopo/14",
+    'northern-cape': "/property-values/northern-cape/8"
 }
 
 # Number of seconds to wait for response before aborting.
