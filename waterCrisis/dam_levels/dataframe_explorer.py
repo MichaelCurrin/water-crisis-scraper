@@ -1,21 +1,26 @@
 #!/usr/bin/env python3
 """Dataframe explorer application file.
 
-Use an import script to parse the input CSV to a dict and then use
-pandas here to parse it to a DataFrame.
+Read in the raw input CSV, apply the cleaning logic as in `csv_parser`
+and then convert the dict object to a DataFrame, instead of writing to a CSV.
+The DataFrame is kept in memory and can be explored easily in iPython.
+No data is written out by this script.
 
-No CSV is written out in this process. A benefit of a DataFrame is that it
-can be used to raise an error on any duplicate index values.
+A benefit of the DataFrame is that it can be used to raise an error on any
+duplicate index values, which have to be solved by updating the cleaning
+logic. This was done previously to identify rows in the source CSV which
+have irregular date formats or values.
 
-Some useful commands:
-df.columns
-df.head()
-df.dtypes
+Some useful commands to apply in pandas:
+>>> df.columns
+>>> df.head()
+>>> df.dtypes
 
-# The None values in calc columns cause the column data type to be
-# object instead of float, therefore describe values are not shown.
-# TODO: Consider how to force column to float and handle None / NaN.
-df.describe()
+The None values in calc columns cause the column data type to be
+object instead of float, therefore describe values are missing for those
+columns.
+TODO: Consider how to force column to float and handle None / NaN.
+>>> df.describe()
 """
 import pandas
 
