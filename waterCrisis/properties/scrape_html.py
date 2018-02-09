@@ -2,23 +2,21 @@
 """Scrape HTML application file.
 
 Read a configured CSV file of suburbs and province metadata which have been
-scraped from the property24.com website. For each row in the CSV, fetch HTML
-for the given URI then write out a text file with an appropriate name.
-No processing of the HTML is done here.
-
-The filenames include metadata attributes to make it easy identify what
-area the HTML is for, or to view and sort a list of filesnames. The filenames
-include the date they were generated, so that a history of files for the
-same location can be built up, to be parsed later. Note that an existing
-HTML file will be skipped if one already exists for the current date.
-This is useful so that if the script stops partway through processing,
-it can pick up when it left off when it restarts.
+scraped from the property24.com website, but exit if it does not exist yet
+(this check is handled within the config script). For each row in the CSV,
+fetch HTML for the given URI then write out a  text file with an appropriate
+name. No processing of the HTML is done in this script.
 
 TODO: Add a command-line flag to force writing over existing files instead of
 skipping.
 TODO: Consider quiet mode flag to only print when storing, so that the
 skipping lines do not take up so much space. This is more important when
 testing than when running the first time each day.
+TODO: Print aggregate counts rather than individual line, especially when
+doing the whole country.
+TODO: A configuration for which provinces to get e.g. only western cape. Or
+to switch between all data and province only data, since the detail is not
+necessary perhaps in all provinces.
 """
 import csv
 import datetime
@@ -30,7 +28,7 @@ import config
 
 
 def main():
-    """Main function to fetch and write out property data HTML files."""
+    """Fetch and write out HTML files around property values."""
     today = datetime.date.today()
 
     with open(config.METADATA_CSV_PATH) as f_in:
