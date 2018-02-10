@@ -6,23 +6,24 @@ import os
 def _get_file_paths():
     """Build and return configured paths for reading and writing files.
 
-    @return: Tuple of path to var directory, path to metadata CSV file
-        and path to HTML out directory.
+    @return: Tuple of path to the following locations:
+        - var directory.
+        - CSV file to write area metadata.
+        - directory to write out HTML files.
+        - CSV file to write processed area data.
     """
     var_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "var"))
+    assert os.access(var_path, os.W_OK), \
+        "Unable to write to var directory: {}".format(var_path)
 
-    metadata_csv_path = os.path.join(var_path, "property_data.csv")
-    assert os.access(var_path, os.R_OK), \
-        "Unable to read path to CSV input: {}".format(var_path)
-
+    metadata_csv_path = os.path.join(var_path, "metadata.csv")
     html_out_dir = os.path.join(var_path, "unprocessed_html")
-    assert os.access(html_out_dir, os.W_OK), \
-        "Unable to write to HTML out dir: {}".format(html_out_dir)
+    data_csv_path = os.path.join(var_path, "processed_data.csv")
 
-    return var_path, metadata_csv_path, html_out_dir
+    return var_path, metadata_csv_path, html_out_dir, data_csv_path
 
 
-VAR_PATH, METADATA_CSV_PATH, HTML_OUT_DIR = _get_file_paths()
+VAR_PATH, METADATA_CSV_PATH, HTML_OUT_DIR, DATA_CSV_PATH = _get_file_paths()
 
 HOST_DOMAIN = "https://www.property24.com"
 PROVINCE_PATHS = {
