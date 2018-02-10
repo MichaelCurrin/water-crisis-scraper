@@ -30,7 +30,7 @@ For example:
 
 The values are visible in the browser and accessible when parsing the HTML. They are assumed to be current, but there is no indication as to how frequently they are updated.
 
-This section of the project deals with regulary saving the raw HTML files to the unprocessed_html directory and then later extracting values from the local files when required.
+This section of the project deals with regulary saving the raw HTML files to the unprocessed_html directory and then later extracting values from the local files when required. It is expensive to keep these files about 700 files covering the whole country is about 50MB. An alternative process could be to fetch, process and discard the HTML data. Or to get suburb data for one province of interest but only top-level data for other provinces. This means appending to a CSV and not overwriting it.
 
 Note that included data here is limited to the point of view of [property24 website](https://www.property24.com/) listings, but should still be useful for analysis.
 
