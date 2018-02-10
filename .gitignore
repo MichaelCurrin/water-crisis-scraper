@@ -11,7 +11,7 @@ virtualenv
 
 # Generated CSV files.
 waterCrisis/*/var/*.csv
-waterCrisis/*/var/.lock*.csv#
+waterCrisis/*/var/.~lock*.csv#
 
 # Fetched HTML files.
 waterCrisis/properties/var/unprocessed_html/*.html
