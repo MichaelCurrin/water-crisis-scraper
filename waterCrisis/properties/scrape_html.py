@@ -45,6 +45,11 @@ def main():
                 )
             out_path = os.path.join(config.HTML_OUT_DIR, out_name)
 
+            # Get all province data, but suburb data for one province only.
+            if (row['area_type'] == 'suburb' and
+                    row['parent_name'] != 'western-cape'):
+                continue
+
             if os.path.exists(out_path):
                 print("Skipping: {name} ({parent})".format(
                         name=row['name'],
