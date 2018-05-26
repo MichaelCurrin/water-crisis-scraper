@@ -4,8 +4,8 @@
 Process HTML application file.
 
 Read property values for all HTML files in the configured directory,
-extract and process values, then write out to a single CSV. The CSV
-have data for all area and date read in and will replace any existing file.
+extract and process values, then write out to a single CSV, writing out
+any existing file. The CSV will have data for all areas and dates read in.
 """
 import csv
 import glob
@@ -17,7 +17,10 @@ import config
 
 
 def main():
-    """"Read and parse HTML files then write out a CSV of processed data."""
+    """"Read and parse HTML files then write out a CSV of processed data.
+
+    @return: None
+    """
     html_paths = glob.glob(
         os.path.join(config.HTML_OUT_DIR, "*")
     )
@@ -26,12 +29,15 @@ def main():
     # in a single CSV.
     property_out_data = []
 
-    # For debugging, keep track of files which have no results data data,
+    # For debugging, keep track of files which have no results data,
     # or possibly had a format not expected by the parsing logic which then
     # needs to be adjusted. This list should have relatively few items in it.
+    # If the site is under maintenance, the data might be missing for a lot
+    # of pages.
+    # TODO: Identify the reason and show the label on output.
     empty_result_pages = []
 
-    print("Extracting data from {} HTML files.".format(len(html_paths)))
+    print("Extracting data from {} HTML files...".format(len(html_paths)))
 
     for f_path in html_paths:
         filename = os.path.basename(f_path)
@@ -42,7 +48,7 @@ def main():
             text = f_in.read()
             soup = BeautifulSoup(text, 'html.parser')
 
-            description = soup.find("div", attrs={'class':"col-xs-11"})
+            description = soup.find("div", attrs={'class': "col-xs-11"})
             first_paragraph = description.find("p")
 
             if first_paragraph:
@@ -51,7 +57,7 @@ def main():
                 # If the HTML layout on the pages ever changes, this will
                 # produce the alert so that parsing logic can be adjusted.
                 assert len(span_tags) == 4, (
-                    "Expected exactly 4 span tags within first p tag but"
+                    "Expected exactly 4 span tags within first <p> tag but"
                     " got: {count}."
                     "\n{tags}"
                     "\n{f_name}".format(
@@ -88,18 +94,18 @@ def main():
             })
 
     print("Processed data for {} filenames.".format(len(property_out_data)))
+
     print("No data to process for {} filenames.".format(
-            len(empty_result_pages)
-        )
-    )
+          len(empty_result_pages)))
+    for i, filename in enumerate(empty_result_pages):
+        print(" {index:d}. {filename}".format(
+            index=i+1,
+            filename=filename
+        ))
 
     fieldnames = ['Date', 'Area Type', 'Parent', 'Name', 'Ave Price',
                   'Property Count']
-    print("Writing data to: {}... ".format(
-        config.DATA_CSV_PATH
-        ),
-        end=""
-    )
+    print("Writing data to: {} ".format(config.DATA_CSV_PATH), end="")
     with open(config.DATA_CSV_PATH, 'w') as f_out:
         writer = csv.DictWriter(f_out, fieldnames=fieldnames)
         writer.writeheader()
@@ -107,7 +113,6 @@ def main():
             key=lambda x: (x['Date'], x['Area Type'], x['Parent'], x['Name'])
         )
         writer.writerows(property_out_data)
-    print("Done.")
 
 
 if __name__ == '__main__':

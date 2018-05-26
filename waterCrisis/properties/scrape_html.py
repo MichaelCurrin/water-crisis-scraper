@@ -5,7 +5,7 @@ Scrape HTML application file.
 Read a configured CSV file of suburbs and province metadata which have been
 scraped from the property24.com website, but exit if it does not exist yet
 (this check is handled within the config script). For each row in the CSV,
-fetch HTML for the given URI then write out a  text file with an appropriate
+fetch HTML for the given URI then write out a text file with an appropriate
 name. No processing of the HTML is done in this script.
 
 TODO: Add a command-line flag to force writing over existing files instead of
@@ -29,7 +29,11 @@ import config
 
 
 def main():
-    """Fetch and write out HTML files around property values."""
+    """Fetch and write out HTML files around property values.
+
+    @return: None
+    @throws: AssertionError
+    """
     today = datetime.date.today()
 
     with open(config.METADATA_CSV_PATH) as f_in:

@@ -39,6 +39,9 @@ def parse_path(path):
             'uri': str
         }
     """
+    # TODO: Get human readable name from text. See the sample.
+    # Provinces need human-readable name in the config.
+
     uri = "".join((config.HOST_DOMAIN, path))
 
     # Ignore the constant part of the path.
@@ -86,6 +89,7 @@ def main():
         for tag in soup.find_all('a'):
             href = tag.get('href')
             if href and href.startswith("/property-values/"):
+                # TODO: Try as list.
                 paths.update((href,))
 
     print("Parsing paths...")
@@ -102,8 +106,6 @@ def main():
 
         writer.writeheader()
         writer.writerows(property_data)
-
-    print("Done.")
 
 
 if __name__ == '__main__':
