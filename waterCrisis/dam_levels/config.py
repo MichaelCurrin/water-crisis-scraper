@@ -1,4 +1,6 @@
-"""Configuration file for the dam_levels module."""
+"""
+Configuration file for the dam_levels module.
+"""
 import os
 
 

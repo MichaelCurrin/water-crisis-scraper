@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Process HTML application file.
+"""
+Process HTML application file.
 
 Read property values for all HTML files in the configured directory,
 extract and process values, then write out to a single CSV. The CSV

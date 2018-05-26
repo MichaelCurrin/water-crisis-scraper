@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-"""Prepare Metadata application file.
+"""
+Prepare Metadata application file.
 
 Scrapes attributes of configured area and writes out their metadata to a CSV.
 

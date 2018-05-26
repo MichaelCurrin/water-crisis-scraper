@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
-"""Configuration file for the properties module."""
+"""
+Configuration file for the properties module.
+"""
 import os
 
 

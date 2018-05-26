@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Parse a dam CSV.
+"""
+Parse a dam CSV.
 
 Read in a CSV of data around dam levels, clean the data and convert it
 to a dictionary. This is written out to a CSV if running as the main script.

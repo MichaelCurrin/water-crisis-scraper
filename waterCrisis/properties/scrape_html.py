@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-"""Scrape HTML application file.
+"""
+Scrape HTML application file.
 
 Read a configured CSV file of suburbs and province metadata which have been
 scraped from the property24.com website, but exit if it does not exist yet
