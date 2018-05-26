@@ -6,14 +6,15 @@ Scrapes attributes of configured area and writes out their metadata to a CSV.
 
 Reads property24 HTML data for given URLs of provinces in South Africa.
 For each province page, extract the details of the province and its suburbs.
-Then writes out a CSV of data for the whole the whole country.
-
-The suburbs and their attributes handled here are expected to be static,
-so the CSV does not need to be updated often. The data can then be read
-in by another script, which can lookup HTML for the values in the uri column.
+Then writes out a CSV of data for the whole country.
 
 The output could be JSON, but CSV makes it easy to sort and filter the data
 in a CSV viewer.
+
+The suburbs and their attributes handled here are expected to be static,
+so the CSV does not need to be updated often. The exported data can then
+be fed into a script which looks up the HTML for the values in the
+uri column.
 """
 import csv
 
@@ -26,8 +27,8 @@ import config
 def parse_path(path):
     """Extract elements from a path in an expected format and return as a dict.
 
-    @param path: Relative path on the property24 website, for either province
-        or suburb values.
+    @param path: Relative page path on the property24 website, for either
+        province or suburb pages.
 
     @return: dict object with the following format::
         {
@@ -65,13 +66,15 @@ def parse_path(path):
 def main():
     """Main function to prepare property metadata.
 
-    Iterate through paths of configured provinces to fetch the HTML,
-    and scrape the href tags. When all provinces are done, write out a single
-    CSV file of the metadata for all areas.
+    Iterate through paths of configured provinces to fetch the HTML, and
+    scrape their href tags. Once all provinces are fetched, write out a single
+    CSV file containing metadata for all areas.
+
+    @return: None
     """
-    # Relative paths of provinces and suburbs which have been scraped,
-    # ignoring duplicates as province paths tend to be repeated on a page
-    # because of appearing in droplists.
+    # Relative paths of provinces and suburbs which have been scraped.
+    # Use a set to ignore duplicates, since province paths tend to be repeated
+    # on a page but add no value.
     paths = set()
 
     for province_name, province_path in config.PROVINCE_PATHS.items():
