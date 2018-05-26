@@ -5,9 +5,8 @@ __pycache__/
 # Virtual environment as a directory or symlink.
 virtualenv/
 virtualenv
-
-# Spyder project file.
-.spyproject
+venv/
+venv
 
 # Generated CSV files.
 waterCrisis/*/var/*.csv
