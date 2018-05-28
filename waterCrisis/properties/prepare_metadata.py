@@ -73,17 +73,22 @@ def main():
     scrape their href tags. Once all provinces are fetched, write out a single
     CSV file containing metadata for all areas.
 
+    Use a set for storing unique province and suburb paths. Province paths tend
+    to be repeated on a page for navigation, but that adds no meaning here.
+
+    Use requests.Session to keep a connection open to the domain and get a
+    performance benefit, as per the documentation here:
+        http://docs.python-requests.org/en/master/user/advanced/
+
     @return: None
     """
-    # Relative paths of provinces and suburbs which have been scraped.
-    # Use a set to ignore duplicates, since province paths tend to be repeated
-    # on a page but add no value.
     paths = set()
+    session = requests.Session()
 
     for province_name, province_path in config.PROVINCE_PATHS.items():
         print("Fetching data for: {0}...".format(province_name))
         province_url = "".join((config.HOST_DOMAIN, province_path))
-        resp = requests.get(province_url)
+        resp = session.get(province_url)
         soup = BeautifulSoup(resp.text, 'html.parser')
 
         for tag in soup.find_all('a'):
@@ -91,18 +96,17 @@ def main():
             if href and href.startswith("/property-values/"):
                 paths.update([href])
 
-    print("Parsing paths...")
+    print("Parsing paths.")
     property_data = [parse_path(p) for p in paths]
     property_data = sorted(
         property_data,
         key=lambda x: (x['area_type'], x['parent_name'], x['name'])
     )
 
-    print("Writing CSV file...")
+    print("Writing CSV file.")
     with open(config.METADATA_CSV_PATH, 'w') as f:
         fieldnames = ['area_id', 'area_type', 'parent_name', 'name', 'uri']
         writer = csv.DictWriter(f, fieldnames=fieldnames)
-
         writer.writeheader()
         writer.writerows(property_data)
 
