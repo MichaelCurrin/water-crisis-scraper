@@ -25,7 +25,12 @@ def _get_file_paths():
     return var_path, metadata_csv_path, html_out_dir, data_csv_path
 
 
+### Paths
+
 VAR_PATH, METADATA_CSV_PATH, HTML_OUT_DIR, DATA_CSV_PATH = _get_file_paths()
+
+
+### Locations
 
 HOST_DOMAIN = "https://www.property24.com"
 PROVINCE_PATHS = {
@@ -39,6 +44,12 @@ PROVINCE_PATHS = {
     'limpopo': "/property-values/limpopo/14",
     'northern-cape': "/property-values/northern-cape/8"
 }
+# Names of provinces for which suburb-level data should be fetched.
+# Set to [] for none, or list(PROVINCE_PATHS.keys()) for all.
+SUBURB_DETAIL_REQUIRED = ['western-cape']
+SUBURB_DETAIL_REQUIRED = list(PROVINCE_PATHS.keys())
+
+### Requests
 
 # Number of seconds to wait for response before aborting.
 REQUEST_TIMEOUT = 5
@@ -51,4 +62,13 @@ REQUEST_HEADERS = {
 }
 # Number of seconds to wait between requests to avoid being blocked.
 # Set 0.0 to not wait.
-REQUEST_SPACING = 1.0
+REQUEST_SPACING = 0.5
+
+# If True, when scraping HTML then skip any local files which already exist,
+# otherwise do the request and overwrite the file. Overwriting should only
+# be necessary if there was an issue in the existing fetch and the files
+# must be replaced with better ones. Or for development and testing purposes.
+SKIP_EXISTING = True
+
+# If True, be more verbose and print out a line when an item is skipped.
+SHOW_SKIPPED = False
