@@ -8,11 +8,6 @@ scraped from the property24.com website, but exit if it does not exist yet
 fetch HTML for the given URI then write out a text file with an appropriate
 name. No processing of the HTML is done in this script.
 
-TODO: Add a command-line flag to force writing over existing files instead of
-skipping.
-TODO: Consider quiet mode flag to only print when storing, so that the
-skipping lines do not take up so much space. This is more important when
-testing than when running the first time each day.
 TODO: Print aggregate counts rather than individual line, especially when
 doing the whole country.
 TODO: A configuration for which provinces to get e.g. only western cape. Or
@@ -31,65 +26,76 @@ import config
 def main():
     """Fetch and write out HTML files around property values.
 
+    Use requests.Session to keep a connection open to the domain and get a
+    performance benefit, as per the documentation here:
+        http://docs.python-requests.org/en/master/user/advanced/
+
     @return: None
     @throws: AssertionError
     """
     today = datetime.date.today()
+    session = requests.Session()
+    processed = skipped = errors = 0
 
     with open(config.METADATA_CSV_PATH) as f_in:
         reader = csv.DictReader(f_in)
 
-        for row in reader:
-            out_name = "{area_type}|{parent_name}|{name}|{area_id}|{date}"\
-                ".html".format(
-                    area_type=row['area_type'],
-                    parent_name=row['parent_name'],
-                    name=row['name'],
-                    area_id=row['area_id'],
-                    date=str(today)
-                )
-            out_path = os.path.join(config.HTML_OUT_DIR, out_name)
-
-            # Get all province data, but suburb data for one province only.
-            if (row['area_type'] == 'suburb' and
-                    row['parent_name'] != 'western-cape'):
-                continue
-
-            if os.path.exists(out_path):
-                print("Skipping: {name} ({parent})".format(
+        try:
+            for row in reader:
+                out_name = "{area_type}|{parent_name}|{name}|{area_id}|{date}"\
+                    ".html".format(
+                        area_type=row['area_type'],
+                        parent_name=row['parent_name'],
                         name=row['name'],
-                        parent=row['parent_name']
+                        area_id=row['area_id'],
+                        date=str(today)
                     )
-                )
-            else:
-                print("Processing: {name} ({parent})... ".format(
-                        name=row['name'],
-                        parent=row['parent_name']
-                    ),
-                    end=''
-                )
-                resp = requests.get(
-                    row['uri'],
-                    timeout=config.REQUEST_TIMEOUT,
-                    headers=config.REQUEST_HEADERS
-                )
+                out_path = os.path.join(config.HTML_OUT_DIR, out_name)
 
-                if resp.status_code == 200:
-                    with open(out_path, 'w') as f_out:
-                        f_out.writelines(resp.text)
-                    print("Done.")
-                    # Wait between requests, to avoid being possibly
-                    # blocked by the server for doing requests too frequently.
-                    time.sleep(config.REQUEST_SPACING)
+                # For suburbs, only fetch those which match configured provinces.
+                if (row['area_type'] == 'suburb' and
+                        row['parent_name'] not in config.SUBURB_DETAIL_REQUIRED):
+                    continue
+
+                if config.SKIP_EXISTING and os.path.exists(out_path):
+                    if config.SHOW_SKIPPED:
+                        print("Skipping: {parent} | {name}".format(
+                                name=row['name'],
+                                parent=row['parent_name']
+                            )
+                        )
+                    skipped += 1
                 else:
-                    msg = "Request for HTML file failed."\
-                        "\n  {code} {reason}"\
-                        "\n  {uri}".format(
-                        code=resp.status_code,
-                        reason=resp.reason,
-                        uri=row['uri']
+                    print("Processing: {parent} | {name} ... ".format(
+                            name=row['name'],
+                            parent=row['parent_name']
+                        ),
                     )
-                    raise AssertionError(msg)
+                    resp = session.get(
+                        row['uri'],
+                        timeout=config.REQUEST_TIMEOUT,
+                        headers=config.REQUEST_HEADERS
+                    )
+
+                    if resp.status_code == 200:
+                        with open(out_path, 'w') as f_out:
+                            f_out.writelines(resp.text)
+                        # Wait between requests, to avoid being possibly
+                        # blocked by the server for doing requests too frequently.
+                        time.sleep(config.REQUEST_SPACING)
+                        processed += 1
+                    else:
+                        error = dict(
+                            code=resp.status_code,
+                            reason=resp.reason,
+                            uri=row['uri']
+                        )
+                        print("Error: {code} {reason} {uri}".format(**error))
+                        errors += 1
+        finally:
+            print("\nProcessed: {}".format(processed))
+            print("Skipped: {}".format(skipped))
+            print("Errors: {}".format(errors))
 
 
 if __name__ == '__main__':
