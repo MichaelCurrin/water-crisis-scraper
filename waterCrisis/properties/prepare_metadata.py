@@ -89,8 +89,7 @@ def main():
         for tag in soup.find_all('a'):
             href = tag.get('href')
             if href and href.startswith("/property-values/"):
-                # TODO: Try as list.
-                paths.update((href,))
+                paths.update([href])
 
     print("Parsing paths...")
     property_data = [parse_path(p) for p in paths]
