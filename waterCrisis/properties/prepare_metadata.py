@@ -25,10 +25,10 @@ import config
 
 
 def parse_path(path):
-    """Extract elements from a path in an expected format and return as a dict.
+    """Extract elements from a location webpage path and return as a dict.
 
     @param path: Relative page path on the property24 website, for either
-        province or suburb pages.
+        province or city pages.
 
     @return: dict object with the following format::
         {
@@ -39,10 +39,8 @@ def parse_path(path):
             'uri': str
         }
     """
-    # TODO: Get human readable name from text. See the sample.
+    # TODO: Get human-readable name from text. See the sample.
     # Provinces need human-readable name in the config.
-
-    uri = "".join((config.HOST_DOMAIN, path))
 
     # Ignore the constant part of the path.
     elements = path.split("/")[2:]
@@ -62,12 +60,12 @@ def parse_path(path):
         'area_type': area_type,
         'parent_name': parent_name,
         'name': name,
-        'uri': uri
+        'uri': "".join((config.HOST_DOMAIN, path))
     }
 
 
 def main():
-    """Main function to prepare property metadata.
+    """Main function to prepare and write a property metadata CSV.
 
     Iterate through paths of configured provinces to fetch the HTML, and
     scrape their href tags. Once all provinces are fetched, write out a single
@@ -86,7 +84,7 @@ def main():
     session = requests.Session()
 
     for province_name, province_path in config.PROVINCE_PATHS.items():
-        print("Fetching data for: {0}...".format(province_name))
+        print("Fetching data for: {0}".format(province_name))
         province_url = "".join((config.HOST_DOMAIN, province_path))
         resp = session.get(province_url)
         soup = BeautifulSoup(resp.text, 'html.parser')
@@ -96,17 +94,19 @@ def main():
             if href and href.startswith("/property-values/"):
                 paths.update([href])
 
-    print("Parsing paths.")
+    print("Parsing webpage paths")
     property_data = [parse_path(p) for p in paths]
     property_data = sorted(
         property_data,
         key=lambda x: (x['area_type'], x['parent_name'], x['name'])
     )
 
-    print("Writing CSV file.")
-    with open(config.METADATA_CSV_PATH, 'w') as f:
-        fieldnames = ['area_id', 'area_type', 'parent_name', 'name', 'uri']
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
+    print("Writing to: {}".format(config.METADATA_CSV_PATH))
+    with open(config.METADATA_CSV_PATH, 'w') as f_out:
+        writer = csv.DictWriter(
+            f_out,
+            fieldnames=['area_id', 'area_type', 'parent_name', 'name', 'uri']
+        )
         writer.writeheader()
         writer.writerows(property_data)
 

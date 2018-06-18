@@ -61,17 +61,15 @@ def main():
                 if config.SKIP_EXISTING and os.path.exists(out_path):
                     if config.SHOW_SKIPPED:
                         print("Skipping: {parent} | {name}".format(
-                                name=row['name'],
-                                parent=row['parent_name']
-                            )
-                        )
+                            name=row['name'],
+                            parent=row['parent_name']
+                        ))
                     skipped += 1
                 else:
                     print("Processing: {parent} | {name} ... ".format(
-                            name=row['name'],
-                            parent=row['parent_name']
-                        )
-                    )
+                        name=row['name'],
+                        parent=row['parent_name']
+                    ))
                     resp = session.get(
                         row['uri'],
                         timeout=config.REQUEST_TIMEOUT,

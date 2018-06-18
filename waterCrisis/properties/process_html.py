@@ -105,7 +105,7 @@ def main():
 
     fieldnames = ['Date', 'Area Type', 'Parent', 'Name', 'Ave Price',
                   'Property Count']
-    print("Writing data to: {} ".format(config.DATA_CSV_PATH), end="")
+    print("Writing to: {}".format(config.DATA_CSV_PATH))
     with open(config.DATA_CSV_PATH, 'w') as f_out:
         writer = csv.DictWriter(f_out, fieldnames=fieldnames)
         writer.writeheader()
