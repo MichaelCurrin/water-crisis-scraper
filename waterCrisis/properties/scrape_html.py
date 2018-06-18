@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python
 """
 Scrape HTML application file.
 
@@ -52,9 +52,10 @@ def main():
                     )
                 out_path = os.path.join(config.HTML_OUT_DIR, out_name)
 
-                # For suburbs, only fetch those which match configured provinces.
-                if (row['area_type'] == 'suburb' and
-                        row['parent_name'] not in config.SUBURB_DETAIL_REQUIRED):
+                # For suburbs, only fetch those which match configured
+                # provinces.
+                if (row['area_type'] == 'suburb' and row['parent_name']
+                        not in config.SUBURB_DETAIL_REQUIRED):
                     continue
 
                 if config.SKIP_EXISTING and os.path.exists(out_path):
@@ -69,7 +70,7 @@ def main():
                     print("Processing: {parent} | {name} ... ".format(
                             name=row['name'],
                             parent=row['parent_name']
-                        ),
+                        )
                     )
                     resp = session.get(
                         row['uri'],
@@ -81,7 +82,8 @@ def main():
                         with open(out_path, 'w') as f_out:
                             f_out.writelines(resp.text)
                         # Wait between requests, to avoid being possibly
-                        # blocked by the server for doing requests too frequently.
+                        # blocked by the server for doing requests too
+                        # frequently.
                         time.sleep(config.REQUEST_SPACING)
                         processed += 1
                     else:
