@@ -34,4 +34,6 @@ This section of the project deals with regulary saving the raw HTML files to the
 
 Note that included data here is limited to the point of view of [property24 website](https://www.property24.com/) listings, but should still be useful for analysis.
 
-The website also offers more granular data, including visualisations and history, such as [Cape Town City Centre property trends](https://www.property24.com/cape-town/cape-town-city-centre/property-trends/9138). This is not handled in this project though.
+The Property24 website also offers more granular data, including visualisations and history, such as [Cape Town City Centre property trends](https://www.property24.com/cape-town/cape-town-city-centre/property-trends/9138). This is not handled in this project though.
+
+See the [usage instructions](docs/usage-properties.md) for the properties module.
