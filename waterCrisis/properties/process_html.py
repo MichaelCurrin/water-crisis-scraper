@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Process HTML application file.
 
 Read property values for all HTML files in the configured directory,
-extract and process values, then write out to a single CSV, writing out
-any existing file. The CSV will have data for all areas and dates read in.
+extract and process values, then write out to a single CSV, writing over
+any existing file. The CSV will have data for all areas and dates which
+were read in.
 """
 import csv
 import glob
