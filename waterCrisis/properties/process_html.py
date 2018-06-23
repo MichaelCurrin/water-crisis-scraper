@@ -68,9 +68,10 @@ def main():
     """"Read and parse HTML files then write out a CSV of processed data.
 
     Expect filenames in one of two styles.
-    - The preferred style, using the scrape_html.py script.
+    - A) The project's style, as set in scrape_html.py script.
         e.g. 'suburb|northern-cape|marydale|539|2018-02-09.html'
-    - The style using a simple bash script and a cURL request.
+    - B) A bash script style using a cURL request as in the project's
+        tools/scrape_pages_with_curl.sh script.
         e.g. 'property_24_western_cape_2018-05-31.html'
         e.g. 'property_24_cape_town_2018-05-13.html'
 
