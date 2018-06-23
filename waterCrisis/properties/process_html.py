@@ -16,54 +16,6 @@ from bs4 import BeautifulSoup
 import config
 
 
-def parse_property_stats(html):
-    """Parse HTML to extract property stats and ignore the rest of the content.
-
-    @param html: HTML text to parse as a single string.
-
-    @return avg_price: Average price in Rands for properties at the location.
-    @return property_count: The count of properties listed for sale in the
-        location.
-    """
-    soup = BeautifulSoup(html, 'html.parser')
-
-    description = soup.find("div", attrs={'class': "col-xs-11"})
-    first_paragraph = description.find("p")
-
-    if first_paragraph:
-        span_tags = first_paragraph.find_all("span")
-
-        # If the HTML layout on the pages ever changes, this will
-        # produce the alert so that parsing logic can be adjusted.
-        assert len(span_tags) == 4, (
-            "Expected exactly 4 span tags within first <p> tag but"
-            " got: {count}."
-            "\n{tags}"
-            "\n{f_name}".format(
-                count=len(span_tags),
-                tags=span_tags,
-                f_name=filename
-            )
-        )
-
-        # The average price in Rands of properties in this area.
-        price_str = span_tags[1].text
-        assert price_str.startswith("R "), "Expected span tag to be a"\
-            " value in Rands. Check the source and parser. Value: {}"\
-            .format(span_tags[1])
-        # The thousands separator used in HTML is '&#160;' and
-        # BeautifulSoup converts this to '\xa0', which prints as a
-        # space character.
-        avg_price = int(price_str[2:].replace("\xa0", ""))
-
-        property_count = int(span_tags[2].text)
-    else:
-        avg_price = None
-        property_count = None
-
-    return avg_price, property_count
-
-
 def parse_curl_metadata(filename):
     """Use the details in a curl-generated HTML filename to extract metadata.
 
@@ -110,6 +62,120 @@ def parse_curl_metadata(filename):
     return area_type, parent_name, name, date
 
 
+def parse_property_stats(html):
+    """Parse HTML to extract property stats and ignore the rest of the content.
+
+    @param html: HTML text to parse as a single string. If this is empty
+        or does not have the expected paragraph of data, then return None
+        values.
+
+    @return avg_price: Average price in Rands for properties at the location.
+    @return property_count: The count of properties listed for sale in the
+        location.
+    """
+    if not html:
+        return None, None
+
+    soup = BeautifulSoup(html, 'html.parser')
+
+    description = soup.find(
+        "div",
+        attrs={'class': "col-xs-11"}
+    )
+    first_paragraph = description.find("p")
+
+    if first_paragraph:
+        span_tags = first_paragraph.find_all("span")
+
+        # If the HTML layout on the pages ever changes, this will
+        # produce the alert so that parsing logic can be adjusted.
+        assert len(span_tags) == 4, (
+            "Expected exactly 4 span tags within first <p> tag but"
+            " got: {count}."
+            "\n{tags}"
+            "\n{f_name}".format(
+                count=len(span_tags),
+                tags=span_tags,
+                f_name=filename
+            )
+        )
+
+        # The average price in Rands of properties in this area.
+        price_str = span_tags[1].text
+        assert price_str.startswith("R "), "Expected span tag to be a"\
+            " value in Rands. Check the source and parser. Value: {}"\
+            .format(span_tags[1])
+        # The thousands separator used in HTML is '&#160;' and
+        # BeautifulSoup converts this to '\xa0', which prints as a
+        # space character.
+        avg_price = int(price_str[2:].replace("\xa0", ""))
+
+        property_count = int(span_tags[2].text)
+    else:
+        avg_price = None
+        property_count = None
+
+    return avg_price, property_count
+
+
+def parse_html(f_path):
+    """
+    Parse HTML of a given filename and return processed data and line count.
+
+    @param f_path: Path HTML file to open and parse.
+
+    @return row_data: dict of processed data with the following format:
+            {
+                'Date': str,
+                'Area Type': str,
+                'Parent': str,
+                'Name': str,
+                'Ave Price': int or None,
+                'Property Count': int or None
+            }
+        Or if there is no data in the file to parse because the file is empty
+        or in an unexpected structure, return None instead.
+    @return filename: Name of HTML, extracted from f_path value.
+    @return line_count: int as number of lines in the input text file.
+    """
+    with open(f_path) as f_in:
+        html = f_in.read()
+
+    filename = os.path.basename(f_path)
+    line_count = len(html.split("\n")) if html else 0
+
+    if filename.startswith("news24_"):
+        # Ignore unrelated News24 files created with the curl script.
+        row_data = None
+    else:
+        if filename.startswith("property_24_"):
+            area_type, parent_name, name, date = parse_curl_metadata(filename)
+        else:
+            metadata, _ = os.path.splitext(filename)
+            area_type, parent_name, name, _, date = metadata.split("|")
+
+        try:
+            avg_price, property_count = parse_property_stats(html)
+        except Exception:
+            print("\nError parsing file: {}".format(f_path))
+            print("Line count: {:,d}".format(line_count))
+            raise
+
+        if avg_price is not None:
+            row_data = {
+                'Date': date,
+                'Area Type': area_type,
+                'Parent': parent_name,
+                'Name': name,
+                'Average Price': avg_price,
+                'Property Count': property_count
+            }
+        else:
+            row_data = None
+
+    return row_data, filename, line_count
+
+
 def html_to_csv(html_dir=config.HTML_OUT_DIR):
     """Read and parse HTML files then write out processed data to a single CSV.
 
@@ -126,62 +192,45 @@ def html_to_csv(html_dir=config.HTML_OUT_DIR):
 
     @return: None
     """
-    html_paths = glob.glob(
-        os.path.join(html_dir, "*")
-    )
-
-    # Used to build a list of dict objects, which can be written out as rows
-    # in a single CSV.
+    # dict objects to be written out as CSV rows.
     property_out_data = []
+    # Keep track of files which are either empty or have HTML structure
+    # which is not expected such as when the site is under maintenance.
+    bad_data_pages = []
 
-    # For debugging, keep track of files which have no results data,
-    # or possibly had a format not expected by the parsing logic which then
-    # needs to be adjusted. This list should have relatively few items in it.
-    # If the site is under maintenance, the data might be missing for a lot
-    # of pages.
-    # TODO: Identify the reason and show the label on output.
-    empty_result_pages = []
+    print("Finding .html files in directory: {}".format(html_dir))
+    html_paths = glob.glob(
+        os.path.join(html_dir, "*.html")
+    )
+    html_paths.sort()
 
     print("Extracting data from {} HTML files".format(len(html_paths)))
 
-    for f_path in html_paths:
-        with open(f_path) as f_in:
-            html = f_in.read()
-        avg_price, property_count = parse_property_stats(html)
+    for i, f_path in enumerate(html_paths):
+        row_data, filename, line_count = parse_html(f_path)
 
-        filename = os.path.basename(f_path)
-        if filename.startswith("property_24_"):
-            area_type, parent_name, name, date = parse_curl_metadata(filename)
+        if row_data:
+            property_out_data.append(row_data)
         else:
-            metadata, _ = os.path.splitext(filename)
-            area_type, parent_name, name, _, date = metadata.split("|")
+            bad_data_pages.append(
+                (filename, line_count)
+            )
+        if (i+1) % 10 == 0:
+            print("{:4d} done".format(i+1))
 
-        property_out_data.append(
-            {
-                'Date': date,
-                'Area Type': area_type,
-                'Parent': parent_name,
-                'Name': name,
-                'Ave Price': avg_price,
-                'Property Count': property_count
-            }
-        )
+    print("\nSuccessfully processed: {:,d}.".format(
+        len(property_out_data)
+    ))
 
-        if avg_price is None:
-            empty_result_pages.append(filename)
-        print("#", end=" ", flush=True)
-
-    print("\nProcessed data for {} filenames.".format(len(property_out_data)))
-
-    print("No data to process for {} filenames.".format(
-          len(empty_result_pages)))
-    for i, filename in enumerate(empty_result_pages):
-        print(" {index:d}. {filename}".format(
+    print("Failed to process: {:,d}.".format(len(bad_data_pages)))
+    for i, (filename, line_count) in enumerate(bad_data_pages):
+        print("{index:4d}. {filename} ({line_count:,d} rows)".format(
             index=i+1,
-            filename=filename
+            filename=filename,
+            line_count=line_count
         ))
 
-    fieldnames = ['Date', 'Area Type', 'Parent', 'Name', 'Ave Price',
+    fieldnames = ['Date', 'Area Type', 'Parent', 'Name', 'Average Price',
                   'Property Count']
     print("Writing to: {}".format(config.DATA_CSV_PATH))
     with open(config.DATA_CSV_PATH, 'w') as f_out:
