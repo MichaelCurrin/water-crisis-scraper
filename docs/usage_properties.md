@@ -66,22 +66,32 @@ Go through all HTML files in the [unprocessed_html](/waterCrisis/properties/var/
 
 ```bash
 $ ./process_html.py
-Extracting data from 1550 HTML files...
-Processed data for 1550 filenames.
-No data to process for 158 filenames.
- 1. suburb|eastern-cape|jamestown|242|2018-05-28.html
- 2. suburb|eastern-cape|seymour|257|2018-06-18.html
- 3. suburb|gauteng|muldersdrif|2467|2018-05-28.html
- 4. suburb|northern-cape|windsorton|513|2018-05-28.html
- 5. suburb|kwazulu-natal|izinqolweni|869|2018-05-28.html
- 6. suburb|gauteng|nokeng-tsa-taemane|683|2018-06-18.html
- 7. suburb|gauteng|roodeplaat|684|2018-06-18.html
-
+Extracting data from 1550 HTML files
+  10 done
+  20 done
+  30 done
+  40 done
+  50 done
+  ...
+  1540 done
+  1550 done
+Successfully processed: 1,392.
+Failed to process: 158.
+   1. suburb|eastern-cape|addo|442|2018-05-28.html (1,283 rows)
+   2. suburb|eastern-cape|addo|442|2018-06-18.html (1,283 rows)
+   3. suburb|eastern-cape|balfour|256|2018-05-28.html (1,339 rows)
+   4. suburb|eastern-cape|balfour|256|2018-06-18.html (1,339 rows)
+   5. suburb|eastern-cape|bizana|2481|2018-05-28.html (2,566 rows)
  ...
-
- 157. suburb|eastern-cape|addo|442|2018-05-28.html
- 158. suburb|mpumalanga|kwaggafontein|2517|2018-06-18.html
+ 157. suburb|western-cape|citrusdal|422|2018-05-26.html (1,320 rows)
+ 158. suburb|western-cape|citrusdal|422|2018-05-28.html (1,303 rows)
 Writing to: /home/michael/repos/water_crisis_scraper/waterCrisis/properties/var/processed_data.csv
+```
+
+Optionally specify an alternate directory to read HTML data from.
+
+```bash
+$ ./process_html.py --read ~/path/to/html_dir
 ```
 
 ### Future development
