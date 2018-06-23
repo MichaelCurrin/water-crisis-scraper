@@ -1,10 +1,13 @@
 #!/bin/bash
-# Use curl to fetch HTML pages and store locally. This should be run daily.
+# Fetch HTML pages and store locally.
+#
+# A simple script which use curl to save just a few pages specified manually,
+# if the need is just to get minimal data. This script should be run daily.
 #
 # TODO: Set instructions for this file and use crontab or cron.daily in
 # docs when ready.
 # Note no extension.
-#   ln -s path/to/scrape_pages_with_curl.sh /etc/cron.daily/scrape_pages_with_curl
+#   sudo ln -s path/to/scrape_pages_with_curl.sh /etc/cron.daily/scrape_pages_with_curl
 # Consider where output should go in project. Top level var, not tools or
 # the python package var.
 #
