@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Dataframe explorer application file.
+"""
+Dataframe explorer application file.
 
 Read in the raw input CSV, apply the cleaning logic as in `csv_parser`
 and then convert the dict object to a DataFrame, instead of writing to a CSV.
