@@ -64,25 +64,70 @@ def parse_property_stats(html):
     return avg_price, property_count
 
 
-def main():
-    """"Read and parse HTML files then write out a CSV of processed data.
+def parse_curl_metadata(filename):
+    """Use the details in a curl-generated HTML filename to extract metadata.
 
-    Expect filenames in one of two styles.
-    - A) The project's style, as set in scrape_html.py script.
-        e.g. 'suburb|northern-cape|marydale|539|2018-02-09.html'
-    - B) A bash script style using a cURL request as in the project's
-        tools/scrape_pages_with_curl.sh script.
-        e.g. 'property_24_western_cape_2018-05-31.html'
-        e.g. 'property_24_cape_town_2018-05-13.html'
+    See the project's tools/scrape_pages_with_curl.sh bash script.
 
-    TODO: Add input for alternative HTML directory.
-    TODO: Manually parse the WC and CT possibilities, with a separate
-        function. Area ID can be ignored.
+    @param filename: The filename of the HTML file, without the extension.
+        Note that the filename has underscores but the returned values
+        have hyphens.
+
+        Format:
+            "property_24_{area}_{date}.html"
+        Examples:
+            "property_24_western_cape_2018-05-31.html"
+            "property_24_cape_town_2018-05-13.html"
+
+        Only those two areas are handled here, using hardcoded rules as the
+        bash script is not intended to be used to scale to many locations. The
+        other logic for parsing filenames easily covers all areas though.
+
+    @return: Tuple of metadata string values as
+        (area_type, parent_name, name, date).
+    """
+    metadata, _ = os.path.splitext(filename)
+    metadata = metadata.replace("property_24_", "")
+    name, date = metadata.rsplit("_", 1)
+
+    metadata_lookup = {
+        'western_cape': {
+            'parent_name': "south-africa",
+            'area_type': "province",
+            'name': 'western-cape'
+        },
+        'cape_town': {
+            'parent_name': "western-cape",
+            'area_type': "suburb",
+            'name': 'cape-town'
+        }
+    }
+    area_metadata = metadata_lookup[name]
+    area_type = area_metadata['area_type']
+    parent_name = area_metadata['parent_name']
+    name = area_metadata['name']
+
+    return area_type, parent_name, name, date
+
+
+def html_to_csv(html_dir=config.HTML_OUT_DIR):
+    """Read and parse HTML files then write out processed data to a single CSV.
+
+    HTML filenames are mostly expected to be in style set in scrape_html.py.
+        "{area_type}|{parent_name}|{name}|{area_id}|{date}.html"
+    Example:
+        "suburb|northern-cape|marydale|539|2018-02-09.html"
+
+    An alternative style is accepted as explained in `parse_curl_metadata`
+    function of this script.
+
+    TODO: Two input directories but one output file? Or two output files or
+    merge inputs directories?
 
     @return: None
     """
     html_paths = glob.glob(
-        os.path.join(config.HTML_OUT_DIR, "*")
+        os.path.join(html_dir, "*")
     )
 
     # Used to build a list of dict objects, which can be written out as rows
@@ -105,8 +150,11 @@ def main():
         avg_price, property_count = parse_property_stats(html)
 
         filename = os.path.basename(f_path)
-        metadata = os.path.splitext(filename)[0]
-        area_type, parent_name, name, area_id, date = metadata.split("|")
+        if filename.startswith("property_24_"):
+            area_type, parent_name, name, date = parse_curl_metadata(filename)
+        else:
+            metadata, _ = os.path.splitext(filename)
+            area_type, parent_name, name, _, date = metadata.split("|")
 
         property_out_data.append(
             {
@@ -143,6 +191,11 @@ def main():
             key=lambda x: (x['Date'], x['Area Type'], x['Parent'], x['Name'])
         )
         writer.writerows(property_out_data)
+
+
+def main():
+    """Command-line function to parse arguments and read and write data."""
+    html_to_csv('/home/michael/Scripts/water_scrape/html')
 
 
 if __name__ == '__main__':
