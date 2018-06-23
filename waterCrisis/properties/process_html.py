@@ -147,34 +147,31 @@ def parse_html(f_path):
     filename = os.path.basename(f_path)
     line_count = len(html.split("\n")) if html else 0
 
-    if filename.startswith("news24_"):
-        # Ignore unrelated News24 files created with the curl script.
-        row_data = None
+
+    if filename.startswith("property_24_"):
+        area_type, parent_name, name, date = parse_curl_metadata(filename)
     else:
-        if filename.startswith("property_24_"):
-            area_type, parent_name, name, date = parse_curl_metadata(filename)
-        else:
-            metadata, _ = os.path.splitext(filename)
-            area_type, parent_name, name, _, date = metadata.split("|")
+        metadata, _ = os.path.splitext(filename)
+        area_type, parent_name, name, _, date = metadata.split("|")
 
-        try:
-            avg_price, property_count = parse_property_stats(html)
-        except Exception:
-            print("\nError parsing file: {}".format(f_path))
-            print("Line count: {:,d}".format(line_count))
-            raise
+    try:
+        avg_price, property_count = parse_property_stats(html)
+    except Exception:
+        print("\nError parsing file: {}".format(f_path))
+        print("Line count: {:,d}".format(line_count))
+        raise
 
-        if avg_price is not None:
-            row_data = {
-                'Date': date,
-                'Area Type': area_type,
-                'Parent': parent_name,
-                'Name': name,
-                'Average Price': avg_price,
-                'Property Count': property_count
-            }
-        else:
-            row_data = None
+    if avg_price is not None:
+        row_data = {
+            'Date': date,
+            'Area Type': area_type,
+            'Parent': parent_name,
+            'Name': name,
+            'Average Price': avg_price,
+            'Property Count': property_count
+        }
+    else:
+        row_data = None
 
     return row_data, filename, line_count
 
@@ -211,6 +208,10 @@ def html_to_csv(html_dir):
     html_paths = glob.glob(
         os.path.join(html_dir, "*.html")
     )
+    # Ignore unrelated News24 files possibly created with the bash script
+    # in the tools directory.
+    html_paths = [path for path in html_paths
+                  if not os.path.basename(path).startswith("news24_")]
     html_paths.sort()
 
     print("Extracting data from {} HTML files".format(len(html_paths)))
