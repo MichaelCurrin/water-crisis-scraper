@@ -7,6 +7,7 @@ extract and process values, then write out to a single CSV, writing over
 any existing file. The CSV will have data for all areas and dates which
 were read in.
 """
+import argparse
 import csv
 import glob
 import os
@@ -17,7 +18,8 @@ import config
 
 
 def parse_curl_metadata(filename):
-    """Use the details in a curl-generated HTML filename to extract metadata.
+    """
+    Use the details in a curl-generated HTML filename to extract metadata.
 
     See the project's tools/scrape_pages_with_curl.sh bash script.
 
@@ -63,7 +65,8 @@ def parse_curl_metadata(filename):
 
 
 def parse_property_stats(html):
-    """Parse HTML to extract property stats and ignore the rest of the content.
+    """
+    Parse HTML to extract property stats and ignore the rest of the content.
 
     @param html: HTML text to parse as a single string. If this is empty
         or does not have the expected paragraph of data, then return None
@@ -176,8 +179,9 @@ def parse_html(f_path):
     return row_data, filename, line_count
 
 
-def html_to_csv(html_dir=config.HTML_OUT_DIR):
-    """Read and parse HTML files then write out processed data to a single CSV.
+def html_to_csv(html_dir):
+    """
+    Read and parse HTML files then write out processed data to a single CSV.
 
     HTML filenames are mostly expected to be in style set in scrape_html.py.
         "{area_type}|{parent_name}|{name}|{area_id}|{date}.html"
@@ -190,6 +194,8 @@ def html_to_csv(html_dir=config.HTML_OUT_DIR):
     TODO: Two input directories but one output file? Or two output files or
     merge inputs directories?
 
+    @param html_dir: Path to directory of HTML files to parse.
+
     @return: None
     """
     # dict objects to be written out as CSV rows.
@@ -197,6 +203,9 @@ def html_to_csv(html_dir=config.HTML_OUT_DIR):
     # Keep track of files which are either empty or have HTML structure
     # which is not expected such as when the site is under maintenance.
     bad_data_pages = []
+
+    assert os.access(html_dir, os.R_OK), \
+        "Unable to read directory: {}".format(html_dir)
 
     print("Finding .html files in directory: {}".format(html_dir))
     html_paths = glob.glob(
@@ -230,9 +239,9 @@ def html_to_csv(html_dir=config.HTML_OUT_DIR):
             line_count=line_count
         ))
 
+    print("Writing to: {}".format(config.DATA_CSV_PATH))
     fieldnames = ['Date', 'Area Type', 'Parent', 'Name', 'Average Price',
                   'Property Count']
-    print("Writing to: {}".format(config.DATA_CSV_PATH))
     with open(config.DATA_CSV_PATH, 'w') as f_out:
         writer = csv.DictWriter(f_out, fieldnames=fieldnames)
         writer.writeheader()
@@ -243,8 +252,23 @@ def html_to_csv(html_dir=config.HTML_OUT_DIR):
 
 
 def main():
-    """Command-line function to parse arguments and read and write data."""
-    html_to_csv('/home/michael/Scripts/water_scrape/html')
+    """
+    Command-line function to parse arguments and read and write data.
+    """
+    parser = argparse.ArgumentParser(description="Process HTML utility."
+                                     " Parse HTML files and write out"
+                                     " processed data to a single CSV file.")
+    parser.add_argument(
+        '-r', '--read',
+        metavar="DIR_PATH",
+        help="Optionally choose a directory to read HTML files from, even"
+            " exist outside the project. Omit this option to use the"
+            " configured default: {}".format(config.HTML_OUT_DIR)
+    )
+    args = parser.parse_args()
+
+    html_dir = args.read if args.read else config.HTML_OUT_DIR
+    html_to_csv(html_dir)
 
 
 if __name__ == '__main__':
