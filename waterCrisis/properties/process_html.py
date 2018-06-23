@@ -215,11 +215,13 @@ def html_to_csv(html_dir):
 
     print("Extracting data from {} HTML files".format(len(html_paths)))
 
+    success_line_counts = []
     for i, f_path in enumerate(html_paths):
         row_data, filename, line_count = parse_html(f_path)
 
         if row_data:
             property_out_data.append(row_data)
+            success_line_counts.append(line_count)
         else:
             bad_data_pages.append(
                 (filename, line_count)
@@ -227,13 +229,19 @@ def html_to_csv(html_dir):
         if (i+1) % 10 == 0:
             print("{:4d} done".format(i+1))
 
-    print("\nSuccessfully processed: {:,d}.".format(
-        len(property_out_data)
+    print("Success")
+    print(" - file count: {:,d}".format(len(property_out_data)))
+    print(" - average line count: {:2,.1f}".format(
+        (sum(success_line_counts)/len(success_line_counts))
     ))
+    print(" - max line count: {:,d}".format(max(success_line_counts)))
+    print(" - mix line count: {:,d}".format(min(success_line_counts)))
 
-    print("Failed to process: {:,d}.".format(len(bad_data_pages)))
+    print("Failed")
+    print(" - file count: {:,d}".format(len(bad_data_pages)))
+    print(" - items:")
     for i, (filename, line_count) in enumerate(bad_data_pages):
-        print("{index:4d}. {filename} ({line_count:,d} rows)".format(
+        print("  {index:4d}. {filename} ({line_count:,d} rows)".format(
             index=i+1,
             filename=filename,
             line_count=line_count
