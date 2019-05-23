@@ -24,11 +24,21 @@ import config
 
 
 def main():
-    """Fetch and write out HTML files around property values.
+    """
+    Fetch and write out HTML files around property values.
 
     Use requests.Session to keep a connection open to the domain and get a
     performance benefit, as per the documentation here:
         http://docs.python-requests.org/en/master/user/advanced/
+
+    In case there is a poor connection or the server is slow to response,
+    catch all request errors for a URI up to a configured number of attempts,
+    waiting between attempts and finally raising the error if all attempts
+    failed. This was implemented because ReadTimeout errors were causing
+    the script to abort.
+
+    Once request is complete, handle anything other than a HTTP
+    success as an error, then skip to the next URI.
 
     @return: None
     @throws: AssertionError
@@ -70,11 +80,23 @@ def main():
                         name=row['name'],
                         parent=row['parent_name']
                     ))
-                    resp = session.get(
-                        row['uri'],
-                        timeout=config.REQUEST_TIMEOUT,
-                        headers=config.REQUEST_HEADERS
-                    )
+
+                    for attempt in range(config.REQUEST_ATTEMPTS):
+                        try:
+                            resp = session.get(
+                                row['uri'],
+                                timeout=config.REQUEST_TIMEOUT,
+                                headers=config.REQUEST_HEADERS
+                            )
+                            break
+                        except requests.RequestException as e:
+                            print("Failed attempt #{}".format(attempt+1))
+                            if attempt + 1 == config.REQUEST_ATTEMPTS:
+                                raise
+                            else:
+                                wait = config.REQUEST_ATTEMPT_WAIT
+                                print("  sleeping {}s".format(wait))
+                                time.sleep(wait)
 
                     if resp.status_code == 200:
                         with open(out_path, 'w') as f_out:

@@ -51,7 +51,15 @@ SUBURB_DETAIL_REQUIRED = list(PROVINCE_PATHS.keys())
 
 ### Requests
 
-# Number of seconds to wait for response before aborting.
+
+# On each failed attempt, wait this many seconds before retrying.
+REQUEST_ATTEMPT_WAIT = 5
+# Number of times to attempt to request a given URI. If the last attempt fails,
+# then stop execution by raising the error.
+REQUEST_ATTEMPTS = 3
+
+# Set the read timeout on get requests. The GET request will abort
+# if no response is received from the server after this many seconds.
 REQUEST_TIMEOUT = 5
 # Fake a browser visit to avoid getting blocked as a scraper.
 REQUEST_HEADERS = {
@@ -60,8 +68,8 @@ REQUEST_HEADERS = {
     'User-Agent': "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36"
                   " (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36"
 }
-# Number of seconds to wait between requests to avoid being blocked.
-# Set 0.0 to not wait.
+# Number of seconds to wait between requests to avoid being potentially blocked
+# by the server for excessive use. Set 0.0 to not wait.
 REQUEST_SPACING = 0.5
 
 # If True, when scraping HTML then skip any local files which already exist,
