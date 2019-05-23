@@ -6,10 +6,11 @@
 Follow these commands to fetch and store property data across South Africa from the property24 website and write out to a CSV.
 
 ```bash
-$ cd path/to/repo
+$ cd <PATH_TO_REPO>
 $ source venv/bin/activate
 $ cd waterCrisis/properties
 ```
+
 
 ### 1. Prepare metadata
 
@@ -27,7 +28,7 @@ Fetching data for: eastern-cape...
 Fetching data for: kwazulu-natal...
 Fetching data for: limpopo...
 Parsing webpage paths
-Writing to: /home/michael/repos/water_crisis_scraper/waterCrisis/properties/var/metadata.csv
+Writing to: /.../waterCrisis/properties/var/metadata.csv
 ```
 
 Now use the metadata CSV generated above to request and download HTML pages for each location and save each using current day's date in the [unprocessed_html](waterCrisis/properties/var/unprocessed_html) directory. If a file exists for a location for the current data, that location is ignored. The locations are limited by what is set in the config file. This command be run daily in order to give a continuous series of data. It takes a few minutes.
@@ -59,6 +60,8 @@ Processed: 702
 Skipped: 0
 Errors: 0
 ```
+
+Note that the total fetched count can vary - counts of 625 and 702 have been observed.
 
 ### 3. Process HTML
 
