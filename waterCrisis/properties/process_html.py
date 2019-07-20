@@ -17,6 +17,20 @@ from bs4 import BeautifulSoup
 import config
 
 
+METADATA_LOOKUP = {
+    'western_cape': {
+        'parent_name': "south-africa",
+        'area_type': "province",
+        'name': 'western-cape'
+    },
+    'cape_town': {
+        'parent_name': "western-cape",
+        'area_type': "suburb",
+        'name': 'cape-town'
+    }
+}
+
+
 def parse_curl_metadata(filename):
     """
     Use the details in a curl-generated HTML filename to extract metadata.
@@ -44,19 +58,7 @@ def parse_curl_metadata(filename):
     metadata = metadata.replace("property_24_", "")
     name, date = metadata.rsplit("_", 1)
 
-    metadata_lookup = {
-        'western_cape': {
-            'parent_name': "south-africa",
-            'area_type': "province",
-            'name': 'western-cape'
-        },
-        'cape_town': {
-            'parent_name': "western-cape",
-            'area_type': "suburb",
-            'name': 'cape-town'
-        }
-    }
-    area_metadata = metadata_lookup[name]
+    area_metadata = METADATA_LOOKUP[name]
     area_type = area_metadata['area_type']
     parent_name = area_metadata['parent_name']
     name = area_metadata['name']
@@ -147,7 +149,8 @@ def parse_html(f_path):
     filename = os.path.basename(f_path)
     line_count = len(html.split("\n")) if html else 0
 
-
+    # TODO: Refactor the 2nd to be a function or to have the conditional inside
+    # a function.
     if filename.startswith("property_24_"):
         area_type, parent_name, name, date = parse_curl_metadata(filename)
     else:
