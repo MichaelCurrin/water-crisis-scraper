@@ -70,6 +70,8 @@ def parse_property_stats(html):
     """
     Parse HTML to extract property stats and ignore the rest of the content.
 
+    Note the value description can be missing in the case of a maintenance page.
+
     @param html: HTML text to parse as a single string. If this is empty
         or does not have the expected paragraph of data, then return None
         values.
@@ -83,11 +85,8 @@ def parse_property_stats(html):
 
     soup = BeautifulSoup(html, 'html.parser')
 
-    description = soup.find(
-        "div",
-        attrs={'class': "col-xs-11"}
-    )
-    first_paragraph = description.find("p")
+    value_description = soup.find("div", attrs={'class': "col-xs-11"})
+    first_paragraph = value_description.find("p") if value_description else None
 
     if first_paragraph:
         span_tags = first_paragraph.find_all("span")
