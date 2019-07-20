@@ -84,7 +84,6 @@ def parse_property_stats(html):
         return None, None
 
     soup = BeautifulSoup(html, 'html.parser')
-
     value_description = soup.find("div", attrs={'class': "col-xs-11"})
     first_paragraph = value_description.find("p") if value_description else None
 
@@ -95,12 +94,9 @@ def parse_property_stats(html):
         # produce the alert so that parsing logic can be adjusted.
         assert len(span_tags) == 4, (
             "Expected exactly 4 span tags within first <p> tag but"
-            " got: {count}."
-            "\n{tags}"
-            "\n{f_name}".format(
+            " got: {count}. \n{tags}".format(
                 count=len(span_tags),
                 tags=span_tags,
-                f_name=filename
             )
         )
 
