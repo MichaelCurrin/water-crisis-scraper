@@ -76,44 +76,44 @@ def parse_property_stats(html):
         or does not have the expected paragraph of data, then return None
         values.
 
-    @return avg_price: Average price in Rands for properties at the location.
-    @return property_count: The count of properties listed for sale in the
-        location.
+    @return tuple
+        avg_price: Average price in Rands for properties at the location.
+        property_count: The count of properties listed for sale in the
+            location.
     """
-    if not html:
-        return None, None
+    avg_price = None
+    property_count = None
 
-    soup = BeautifulSoup(html, 'html.parser')
-    value_description = soup.find("div", attrs={'class': "col-xs-11"})
-    first_paragraph = value_description.find("p") if value_description else None
+    if html:
+        soup = BeautifulSoup(html, 'html.parser')
+        value_description = soup.find("div", attrs={'class': "col-xs-11"})
 
-    if first_paragraph:
-        span_tags = first_paragraph.find_all("span")
+        if value_description:
+            first_paragraph = value_description.find("p")
 
-        # If the HTML layout on the pages ever changes, this will
-        # produce the alert so that parsing logic can be adjusted.
-        assert len(span_tags) == 4, (
-            "Expected exactly 4 span tags within first <p> tag but"
-            " got: {count}. \n{tags}".format(
-                count=len(span_tags),
-                tags=span_tags,
-            )
-        )
+            if first_paragraph:
+                span_tags = first_paragraph.find_all("span")
 
-        # The average price in Rands of properties in this area.
-        price_str = span_tags[1].text
-        assert price_str.startswith("R "), "Expected span tag to be a"\
-            " value in Rands. Check the source and parser. Value: {}"\
-            .format(span_tags[1])
-        # The thousands separator used in HTML is '&#160;' and
-        # BeautifulSoup converts this to '\xa0', which prints as a
-        # space character.
-        avg_price = int(price_str[2:].replace("\xa0", ""))
+                # If the HTML layout on the pages ever changes, this will
+                # produce the alert so that parsing logic can be adjusted.
+                assert len(span_tags) == 4, (
+                    "Expected exactly 4 span tags within first <p> tag but"
+                    " got: {count}. \n{tags}".format(
+                        count=len(span_tags),
+                        tags=span_tags,
+                    )
+                )
 
-        property_count = int(span_tags[2].text)
-    else:
-        avg_price = None
-        property_count = None
+                # The average price in Rands of properties in this area.
+                price_str = span_tags[1].text
+                assert price_str.startswith("R "), "Expected span tag to be a"\
+                    " value in Rands. Check the source and parser. Value: {}"\
+                    .format(span_tags[1])
+                # The thousands separator used in HTML is '&#160;' and
+                # BeautifulSoup converts this to '\xa0', which prints as a
+                # space character.
+                avg_price = int(price_str[2:].replace("\xa0", ""))
+                property_count = int(span_tags[2].text)
 
     return avg_price, property_count
 
