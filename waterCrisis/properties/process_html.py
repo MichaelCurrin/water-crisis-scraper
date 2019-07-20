@@ -106,13 +106,15 @@ def parse_property_stats(html):
 
                 # The average price in Rands of properties in this area.
                 price_str = span_tags[1].text
-                assert price_str.startswith("R "), "Expected span tag to be a"\
-                    " value in Rands. Check the source and parser. Value: {}"\
+                assert price_str.startswith("R"), "Expected span tag to be a"\
+                    " value in Rands. Check the source and parser. Element: {}"\
                     .format(span_tags[1])
-                # The thousands separator used in HTML is '&#160;' and
-                # BeautifulSoup converts this to '\xa0', which prints as a
-                # space character.
-                avg_price = int(price_str[2:].replace("\xa0", ""))
+                # The value can be 'R xxx' or 'R-xxx', though the negative value may
+                # be data on the site. The minus sign is kept when parsing.
+                # But remove the thousands separator - in HTML this is '&#160;' and
+                # BeautifulSoup converts this to '\xa0' and which prints as a
+                # space character in the terminal.
+                avg_price = int(price_str[1:].replace("\xa0", ""))
                 property_count = int(span_tags[2].text)
 
     return avg_price, property_count
