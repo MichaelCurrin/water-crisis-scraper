@@ -1,25 +1,9 @@
 # Installation
 
+## Setup a Python 3 virtual environment
 
-## Install OS-level dependencies
-
-```bash
-$ sudo apt-get update
-$ sudo apt-get update
-$ sudo apt-get install python3.5
-$ sudo apt-get install virtualenv
-```
-
-## Install python packages in a virtual environment
-
-```bash
-$ cd path/to/repo
-$ virtualenv venv --python python3.5
-$ source venv/bin/activate
-(venv) $ pip install pip --upgrade
-(venv) $ pip install -r requirements.txt
-```
+Follow instructions in this [gist](https://gist.github.com/MichaelCurrin/3a4d14ba1763b4d6a1884f56a01412b7).
 
 Now you can continue to usage instructions for:
 
-- the [properties module](docs/usage_properties.md)
+- [Properties module](docs/usage_properties.md)
