@@ -1,6 +1,6 @@
 # Usage - Properties
 
-This section describes tools to scrape property data from Property24 site and store as HTML, using Bash or Python. And a tool to parse the stored HTMl and generate a CSV report.
+This section describes tools to scrape property data from _Property24_ site and store as HTML, using Bash or Python. And a tool to parse the stored HTMl and generate a CSV report.
 
 Use either [Light Scraping](#light-scraping) or [Deep Scraping](#deep-scraping) and then see the [Process HTML](#process-html) section.
 
@@ -9,7 +9,7 @@ The light tool can easily be run daily as it is not intense in time or storage a
 
 ## Light scraping
 
-Use the project's tool scrape property data for Cape Town, the Western Cape and South Africa. These are important for comparisons and because Cape Town experienced a water shortage from about 2008.
+Use the project's tool scrape property data for Cape Town and the Western Cape, plus water crisis data from _News24_. These are important for comparisons and because Cape Town experienced a water shortage from about 2008.
 
 The script is [scrape_pages_with_curl.sh](/tools/scrape_pages_with_curl.sh). It will skip over requesting and saving a file if one already exists for the current day.
 
