@@ -1,16 +1,50 @@
 # Usage - Properties
 
+This section describes tools to scrape property data from Property24 site and store as HTML, using Bash or Python. And a tool to parse the stored HTMl and generate a CSV report.
 
-## Handle property data
+Use either [Light Scraping](#light-scraping) or [Deep Scraping](#deep-scraping) and then see the [Process HTML](#process-html) section.
 
-Follow these commands to fetch and store property data across South Africa from the property24 website and write out to a CSV.
+The light tool can easily be run daily as it is not intense in time or storage as scraping data for all areas in South Africa as covered in the next section. If you the deep scraping tool, you will duplicate the 3 files from the light tool.
+
+
+## Light scraping
+
+Use the project's tool scrape property data for Cape Town, the Western Cape and South Africa. These are important for comparisons and because Cape Town experienced a water shortage from about 2008.
+
+The script is [scrape_pages_with_curl.sh](/tools/scrape_pages_with_curl.sh). It will skip over requesting and saving a file if one already exists for the current day.
+
+Use crontab to run the tool several times a day, allowing chances to retry later in the day if if network connection was off or the domain was unreachable. Or use daily cron, which is less forgiving.
+
+### Crontab
+
+Add something like this to your cron file.
+
+```bash
+$ crontab -e
+```
+
+```
+# m     h       dom     mon     dow     command
+  30    7-18    *       *       *       <PATH_TO_REPO>/tools/scrape_pages_with_curl.sh
+```
+
+### Daily cron
+
+Add a link to the tool in your `cron.daily` directory. Note that the link must not have an extension.
+
+```bash
+$ sudo ln -s <PATH_TO_REPO>/scrape_pages_with_curl.sh /etc/cron.daily/scrape_pages_with_curl
+```
+
+## Deep Scraping
+
+Follow these commands to fetch and store property data across South Africa from the _Property24_ website and write out to a CSV.
 
 ```bash
 $ cd <PATH_TO_REPO>
 $ source venv/bin/activate
 $ cd waterCrisis/properties
 ```
-
 
 ### 1. Prepare metadata
 
@@ -31,10 +65,12 @@ Parsing webpage paths
 Writing to: /.../waterCrisis/properties/var/metadata.csv
 ```
 
-Now use the metadata CSV generated above to request and download HTML pages for each location and save each using current day's date in the [unprocessed_html](waterCrisis/properties/var/unprocessed_html) directory. If a file exists for a location for the current data, that location is ignored. The locations are limited by what is set in the config file. This command be run daily in order to give a continuous series of data. It takes a few minutes.
+Now use the metadata CSV generated above to request and download HTML pages for each location and save each using current day's date in the [unprocessed_html](/waterCrisis/properties/var/unprocessed_html) directory. If a file exists for a location for the current data, that location is ignored. The locations are limited by what is set in the config file. This command be run daily in order to give a continuous series of data. It takes a few minutes.
 
 
 ### 2. Scrape HTML
+
+This requires the metadata CSV from the above step to exist.
 
 ```bash
 $ ./scrape_html.py
@@ -63,7 +99,7 @@ Errors: 0
 
 Note that the total fetched count can vary - counts of 625 and 702 have been observed.
 
-### 3. Process HTML
+### Process HTML
 
 Go through all HTML files in the [unprocessed_html](/waterCrisis/properties/var/unprocessed_html) directory, extract the property value and count for each and then write out all results to a single CSV file in the [var](/waterCrisis/properties/var) directory, overwriting any existing file. If new HTML files have been added to the [unprocessed_html](/waterCrisis/properties/var/unprocessed_html) directory, then this command should be run to create an updated CSV with more data.
 
