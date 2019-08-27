@@ -17,6 +17,20 @@ from bs4 import BeautifulSoup
 import config
 
 
+METADATA_LOOKUP = {
+    'western_cape': {
+        'parent_name': "south-africa",
+        'area_type': "province",
+        'name': 'western-cape'
+    },
+    'cape_town': {
+        'parent_name': "western-cape",
+        'area_type': "suburb",
+        'name': 'cape-town'
+    }
+}
+
+
 def parse_curl_metadata(filename):
     """
     Use the details in a curl-generated HTML filename to extract metadata.
@@ -44,19 +58,7 @@ def parse_curl_metadata(filename):
     metadata = metadata.replace("property_24_", "")
     name, date = metadata.rsplit("_", 1)
 
-    metadata_lookup = {
-        'western_cape': {
-            'parent_name': "south-africa",
-            'area_type': "province",
-            'name': 'western-cape'
-        },
-        'cape_town': {
-            'parent_name': "western-cape",
-            'area_type': "suburb",
-            'name': 'cape-town'
-        }
-    }
-    area_metadata = metadata_lookup[name]
+    area_metadata = METADATA_LOOKUP[name]
     area_type = area_metadata['area_type']
     parent_name = area_metadata['parent_name']
     name = area_metadata['name']
@@ -68,55 +70,52 @@ def parse_property_stats(html):
     """
     Parse HTML to extract property stats and ignore the rest of the content.
 
+    Note the value description can be missing in the case of a maintenance page.
+
     @param html: HTML text to parse as a single string. If this is empty
         or does not have the expected paragraph of data, then return None
         values.
 
-    @return avg_price: Average price in Rands for properties at the location.
-    @return property_count: The count of properties listed for sale in the
-        location.
+    @return tuple
+        avg_price: Average price in Rands for properties at the location.
+        property_count: The count of properties listed for sale in the
+            location.
     """
-    if not html:
-        return None, None
+    avg_price = None
+    property_count = None
 
-    soup = BeautifulSoup(html, 'html.parser')
+    if html:
+        soup = BeautifulSoup(html, 'html.parser')
+        value_description = soup.find("div", attrs={'class': "col-xs-11"})
 
-    description = soup.find(
-        "div",
-        attrs={'class': "col-xs-11"}
-    )
-    first_paragraph = description.find("p")
+        if value_description:
+            first_paragraph = value_description.find("p")
 
-    if first_paragraph:
-        span_tags = first_paragraph.find_all("span")
+            if first_paragraph:
+                span_tags = first_paragraph.find_all("span")
 
-        # If the HTML layout on the pages ever changes, this will
-        # produce the alert so that parsing logic can be adjusted.
-        assert len(span_tags) == 4, (
-            "Expected exactly 4 span tags within first <p> tag but"
-            " got: {count}."
-            "\n{tags}"
-            "\n{f_name}".format(
-                count=len(span_tags),
-                tags=span_tags,
-                f_name=filename
-            )
-        )
+                # If the HTML layout on the pages ever changes, this will
+                # produce the alert so that parsing logic can be adjusted.
+                assert len(span_tags) == 4, (
+                    "Expected exactly 4 span tags within first <p> tag but"
+                    " got: {count}. \n{tags}".format(
+                        count=len(span_tags),
+                        tags=span_tags,
+                    )
+                )
 
-        # The average price in Rands of properties in this area.
-        price_str = span_tags[1].text
-        assert price_str.startswith("R "), "Expected span tag to be a"\
-            " value in Rands. Check the source and parser. Value: {}"\
-            .format(span_tags[1])
-        # The thousands separator used in HTML is '&#160;' and
-        # BeautifulSoup converts this to '\xa0', which prints as a
-        # space character.
-        avg_price = int(price_str[2:].replace("\xa0", ""))
-
-        property_count = int(span_tags[2].text)
-    else:
-        avg_price = None
-        property_count = None
+                # The average price in Rands of properties in this area.
+                price_str = span_tags[1].text
+                assert price_str.startswith("R"), "Expected span tag to be a"\
+                    " value in Rands. Check the source and parser. Element: {}"\
+                    .format(span_tags[1])
+                # The value can be 'R xxx' or 'R-xxx', though the negative value may
+                # be data on the site. The minus sign is kept when parsing.
+                # But remove the thousands separator - in HTML this is '&#160;' and
+                # BeautifulSoup converts this to '\xa0' and which prints as a
+                # space character in the terminal.
+                avg_price = int(price_str[1:].replace("\xa0", ""))
+                property_count = int(span_tags[2].text)
 
     return avg_price, property_count
 
@@ -147,7 +146,8 @@ def parse_html(f_path):
     filename = os.path.basename(f_path)
     line_count = len(html.split("\n")) if html else 0
 
-
+    # TODO: Refactor the 2nd to be a function or to have the conditional inside
+    # a function.
     if filename.startswith("property_24_"):
         area_type, parent_name, name, date = parse_curl_metadata(filename)
     else:

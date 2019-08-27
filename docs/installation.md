@@ -4,6 +4,6 @@
 
 Follow instructions in this [gist](https://gist.github.com/MichaelCurrin/3a4d14ba1763b4d6a1884f56a01412b7).
 
-Now you can continue to usage instructions for:
+You can now continue to the usage docs.
 
-- [Properties module](docs/usage_properties.md)
+- [Properties usage](usage_properties.md)
