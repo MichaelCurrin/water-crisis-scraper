@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Configuration file for the properties module.
 """
@@ -48,6 +47,7 @@ PROVINCE_PATHS = {
 # Set to [] for none, or list(PROVINCE_PATHS.keys()) for all.
 SUBURB_DETAIL_REQUIRED = ['western-cape']
 SUBURB_DETAIL_REQUIRED = list(PROVINCE_PATHS.keys())
+
 
 ### Requests
 
