@@ -3,6 +3,10 @@
 #
 # A simple script which use curl to save just a few pages specified manually,
 # if the need is just to get minimal data. This script should be run daily.
+#
+# It could be more efficient to check status as 200 before writing but
+# then possibly do in python for ease. The idea is a simple bash script.
+
 
 function write_data {
   if [ $# -ne 2 ]; then
