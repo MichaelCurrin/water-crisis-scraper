@@ -236,7 +236,7 @@ def html_to_csv(html_dir):
         (sum(success_line_counts)/len(success_line_counts))
     ))
     print(" - max line count: {:,d}".format(max(success_line_counts)))
-    print(" - mix line count: {:,d}".format(min(success_line_counts)))
+    print(" - min line count: {:,d}".format(min(success_line_counts)))
 
     print("Failed")
     print(" - file count: {:,d}".format(len(bad_data_pages)))
