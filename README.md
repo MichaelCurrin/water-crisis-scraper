@@ -2,10 +2,10 @@
 >Scrape and explore data related to Cape Town's water crisis.
 
 
-## Data sources
+## 📥 Data sources
 
 
-### Dam Levels
+### 💧 Dam Levels
 
 The **[dam_levels module](waterCrisis/dam_levels)** handles government data on historical and current dam levels in the Western Cape.
 
@@ -17,7 +17,7 @@ Disclaimer:
 The data provided at this site is subject to change at any time. It is understood that the data provided at this site is being used at one’s own risk.
 
 
-### Properties
+### 🏙 Properties
 
 The **[properties module](waterCrisis/properties)** processes average property price data for South Africa, sourced from the [property24 website](https://www.property24.com/) site.
 
