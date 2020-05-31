@@ -37,3 +37,10 @@ Note that included data here is limited to the point of view of [property24 webs
 The Property24 website also offers more granular data, including visualisations and history, such as [Cape Town City Centre property trends](https://www.property24.com/cape-town/cape-town-city-centre/property-trends/9138). This is not handled in this project though.
 
 See the [usage instructions](docs/usage_properties.md) for the properties module.
+
+
+## News
+
+See the [news](/news/) module.
+
+The script there parses the output from a `curl` script in [tools](/tools.)
