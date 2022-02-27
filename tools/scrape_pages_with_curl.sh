@@ -37,14 +37,11 @@ OUT_DIR=$PROJECT_ROOT/waterCrisis/properties/var/unprocessed_html
 
 TODAY=$(date +'%Y-%m-%d')
 
-NEWS_IN='https://www.news24.com/SouthAfrica/water_crisis'
 WC_IN='https://www.property24.com/property-values/western-cape/9'
 CT_IN='https://www.property24.com/property-values/cape-town/western-cape/432'
 
-NEWS_OUT="$OUT_DIR/news24_water_crisis_$TODAY.html"
 WC_OUT="$OUT_DIR/property_24_western_cape_$TODAY.html"
 CT_OUT="$OUT_DIR/property_24_cape_town_$TODAY.html"
 
-write_data "$NEWS_IN" "$NEWS_OUT"
 write_data "$WC_IN" "$WC_OUT"
 write_data "$CT_IN" "$CT_OUT"
